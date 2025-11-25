@@ -1,3 +1,7 @@
+import { sendData } from './api.js';
+import { showSuccessMessage, showErrorMessage } from './message.js';
+import { resetMap } from './map.js';
+
 const adForm = document.querySelector('.ad-form');
 const adFormFieldsets = adForm.querySelectorAll('fieldset');
 const mapFilters = document.querySelector('.map__filters');
@@ -12,6 +16,8 @@ const timeInField = adForm.querySelector('#timein');
 const timeOutField = adForm.querySelector('#timeout');
 const addressField = adForm.querySelector('#address');
 const sliderElement = adForm.querySelector('.ad-form__slider');
+const submitButton = adForm.querySelector('.ad-form__submit');
+const resetButton = adForm.querySelector('.ad-form__reset');
 
 const roomsToGuests = {
   1: ['1'],
@@ -124,11 +130,47 @@ typeField.addEventListener('change', onTypeChange);
 timeInField.addEventListener('change', onTimeInChange);
 timeOutField.addEventListener('change', onTimeOutChange);
 
+const blockSubmitButton = () => {
+  submitButton.disabled = true;
+  submitButton.textContent = 'Публикую...';
+};
+
+const unblockSubmitButton = () => {
+  submitButton.disabled = false;
+  submitButton.textContent = 'Опубликовать';
+};
+
+const resetForm = () => {
+  adForm.reset();
+  pristine.reset();
+  sliderElement.noUiSlider.set(1000);
+  resetMap();
+};
+
 adForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
   const isValid = pristine.validate();
-  if (!isValid) {
-    evt.preventDefault();
+  if (isValid) {
+    blockSubmitButton();
+    sendData(
+      () => {
+        showSuccessMessage();
+        resetForm();
+        unblockSubmitButton();
+      },
+      () => {
+        showErrorMessage();
+        unblockSubmitButton();
+      },
+      new FormData(evt.target),
+    );
   }
+});
+
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+  resetForm();
 });
 
 /**
