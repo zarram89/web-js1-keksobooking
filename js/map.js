@@ -3,6 +3,7 @@ import { renderCard } from './card.js';
 import { setAddress } from './form.js';
 
 const map = L.map('map-canvas');
+const markerGroup = L.layerGroup().addTo(map);
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -54,7 +55,7 @@ const createMarker = (ad) => {
   );
 
   marker
-    .addTo(map)
+    .addTo(markerGroup)
     .bindPopup(renderCard(ad));
 };
 
@@ -73,6 +74,7 @@ const initMap = (onLoad) => {
 };
 
 const renderMarkers = (ads) => {
+  markerGroup.clearLayers();
   ads.forEach((ad) => {
     createMarker(ad);
   });
