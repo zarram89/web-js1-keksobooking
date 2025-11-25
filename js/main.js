@@ -1,9 +1,13 @@
-import { createAds } from './data.js';
 import { disablePage, initSlider } from './form.js';
-import { initMap } from './map.js';
-
-const ads = createAds();
+import { initMap, renderMarkers } from './map.js';
+import { getData } from './api.js';
+import { showAlert } from './message.js';
 
 disablePage();
 initSlider();
-initMap(ads);
+
+initMap(() => {
+  getData((ads) => {
+    renderMarkers(ads);
+  }, showAlert);
+});
