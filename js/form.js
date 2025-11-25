@@ -10,6 +10,8 @@ const typeField = adForm.querySelector('#type');
 const priceField = adForm.querySelector('#price');
 const timeInField = adForm.querySelector('#timein');
 const timeOutField = adForm.querySelector('#timeout');
+const addressField = adForm.querySelector('#address');
+const sliderElement = adForm.querySelector('.ad-form__slider');
 
 const roomsToGuests = {
   1: ['1'],
@@ -68,6 +70,39 @@ const onCapacityChange = () => {
   pristine.validate(roomNumberField);
 };
 
+const setAddress = (lat, lng) => {
+  addressField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+};
+
+const initSlider = () => {
+  noUiSlider.create(sliderElement, {
+    range: {
+      min: 0,
+      max: 100000,
+    },
+    start: 1000,
+    step: 1,
+    connect: 'lower',
+    format: {
+      to: function (value) {
+        return value.toFixed(0);
+      },
+      from: function (value) {
+        return parseFloat(value);
+      },
+    },
+  });
+
+  sliderElement.noUiSlider.on('update', () => {
+    priceField.value = sliderElement.noUiSlider.get();
+    pristine.validate(priceField);
+  });
+
+  priceField.addEventListener('change', () => {
+    sliderElement.noUiSlider.set(priceField.value);
+  });
+};
+
 const onTypeChange = () => {
   const minPrice = minPrices[typeField.value];
   priceField.placeholder = minPrice;
@@ -112,6 +147,11 @@ const disablePage = () => {
   mapFiltersFieldsets.forEach((fieldset) => {
     fieldset.disabled = true;
   });
+
+  // Disable slider
+  if (sliderElement.noUiSlider) {
+    sliderElement.setAttribute('disabled', true);
+  }
 };
 
 /**
@@ -130,6 +170,11 @@ const enablePage = () => {
   mapFiltersFieldsets.forEach((fieldset) => {
     fieldset.disabled = false;
   });
+
+  // Enable slider
+  if (sliderElement.noUiSlider) {
+    sliderElement.removeAttribute('disabled');
+  }
 };
 
-export { disablePage, enablePage };
+export { disablePage, enablePage, setAddress, initSlider };
